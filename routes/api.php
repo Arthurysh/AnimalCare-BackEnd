@@ -20,3 +20,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/addUser', 'UserController@addUser');
+Route::post('/login', 'UserController@login');
+Route::post('/upateUser', 'UserController@upateUser');
+Route::post('/deleteUser/{userId?}', 'UserController@deleteUser');
+Route::post('/logout', 'UserController@logout');
+
+Route::get('/getUser', 'UserController@getUser');
+
+
+
+
+
