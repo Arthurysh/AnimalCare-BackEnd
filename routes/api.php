@@ -24,8 +24,12 @@ Route::post('/login', 'UserController@login');
 Route::post('/upateUser', 'UserController@upateUser');
 Route::post('/deleteUser/{userId?}', 'UserController@deleteUser');
 Route::post('/logout', 'UserController@logout');
+Route::post('/updateSensor', 'sensorController@updateSensor');
+
 
 Route::get('/getUser', 'UserController@getUser');
+Route::get('/getSensor', 'sensorController@getSensor');
+
 
 
 
