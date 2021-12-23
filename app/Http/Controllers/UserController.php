@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
 class UserController extends Controller
 {
      public function addUser(Request $request){
@@ -15,15 +17,27 @@ class UserController extends Controller
             'surname' => ['required'],
             'email' => ['required', 'email', 'unique:users'],
             'phone' => ['required','min:12', 'numeric', 'unique:users'],
-            'password' => ['required', 'min:8']
         ]);
+
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $count = mb_strlen($chars);
+    
+        for ($i = 0, $paslw = ''; $i < 12; $i++) {
+            $index = rand(0, $count - 1);
+            $paslw .= mb_substr($chars, $index, 1);
+        }
+        $data = ([
+            'email' => $request->email,
+            'password' => ($paslw),
+        ]);
+        Mail::to($request->email)->send(new WelcomeMail($data));
          DB::table('users')
          ->insert([
              'name' => $request->name,
              'surname' => $request->surname,
              'email' => $request->email,
              'phone' => $request->phone,
-             'password' => Hash::make($request->password),
+             'password' => Hash::make($paslw),
              'user_role' => 'User'
          ]);
      }

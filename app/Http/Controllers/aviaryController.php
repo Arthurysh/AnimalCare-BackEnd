@@ -15,7 +15,8 @@ class aviaryController extends Controller
         ->where('userId', $userId->userId)
         ->select('user_role')
         ->get();
-     if($user_role = "User"){
+         
+     if($user_role[0]->user_role == "User"){
         $userAviary = DB::table('user_aviary')
          ->join('users', 'user_aviary.userId', '=', 'users.userId')
          ->join('aviary', 'user_aviary.aviaryId', '=', 'aviary.aviaryId')
@@ -32,14 +33,17 @@ class aviaryController extends Controller
          ->join('aviary', 'user_aviary.aviaryId', '=', 'aviary.aviaryId')
          ->whereIn('user_aviary.aviaryId', $massiveAviaryId)
          ->get();
+         $animalsMassive = DB::table('animal')->get();
+         $statusHisoryMassive = DB::table('status_history')->get();
          $aviaryList = [];
-
          foreach ($aviaryPoint as $point) {
              $aviary = [
                "id" => $point->aviaryId,
                "name_aviary" => $point->name_aviary,
                "status" => $point->status,
-               "users" => []
+               "users" => [],
+               "animals" => [],
+               "status_history" => []
              ];
              
              foreach ($aviaryPoint as $key=>$pointId) {
@@ -50,29 +54,141 @@ class aviaryController extends Controller
                         "surname" => $pointId->surname
                       ];
                       array_push($aviary["users"], $user);
-                 }
-             }
+                    }
+                }
+                 foreach ($animalsMassive as $key=>$animalId) {
+                    if ($point->aviaryId == $animalId->aviaryId){
+                       $animalPoint = [
+                           "animalId" => $animalId->animalId,
+                           "name" => $animalId->name,
+                           "type" => $animalId->type
+                         ];
+                         array_push($aviary["animals"], $animalPoint);
+                        }
+                }
+                foreach ($statusHisoryMassive as $key=>$statusId) {
+                    if ($point->aviaryId == $statusId->aviaryId){
+                       $statusPoint = [
+                           "status" => $statusId->status,
+                         ];
+                         array_push($aviary["status_history"], $statusPoint);
+                        }
+                }
+             
              
              array_push($aviaryList, $aviary);
          }
-         return array_unique($aviaryList, SORT_REGULAR);
+        return array_unique($aviaryList, SORT_REGULAR);
      }
-     elseif($user_role = "Admin"){
-        $adminAviary = DB::table('user_aviary')
-        ->join('users', 'user_aviary.userId', '=', 'users.userId')
-        ->join('aviary', 'user_aviary.aviaryId', '=', 'aviary.aviaryId')
-        ->get();
-        return $adminAviary;
+     elseif($user_role[0]->user_role == "Admin"){
+        $userAviary = DB::table('user_aviary')
+         ->join('users', 'user_aviary.userId', '=', 'users.userId')
+         ->join('aviary', 'user_aviary.aviaryId', '=', 'aviary.aviaryId')
+         ->get();
+         
+        $massiveAviaryId = [];
+       
+          foreach ($userAviary as $massiveAviary) {
+            array_push($massiveAviaryId, $massiveAviary->aviaryId);
+         }
+         $aviaryPoint = DB::table('user_aviary')
+         ->join('users', 'user_aviary.userId', '=', 'users.userId')
+         ->join('aviary', 'user_aviary.aviaryId', '=', 'aviary.aviaryId')
+         ->whereIn('user_aviary.aviaryId', $massiveAviaryId)
+         ->get();
+         $animalsMassive = DB::table('animal')->get();
+         $statusHisoryMassive = DB::table('status_history')->get();
+         $aviaryList = [];
+         foreach ($aviaryPoint as $point) {
+             $aviary = [
+               "id" => $point->aviaryId,
+               "name_aviary" => $point->name_aviary,
+               "status" => $point->status,
+               "users" => [],
+               "animals" => [],
+               "status_history" => []
+             ];
+             
+             foreach ($aviaryPoint as $key=>$pointId) {
+                 if ($point->aviaryId == $pointId->aviaryId){
+                    $user = [
+                        "userId" => $pointId->userId,
+                        "name" => $pointId->name,
+                        "surname" => $pointId->surname
+                      ];
+                      array_push($aviary["users"], $user);
+                    }
+                }
+                 foreach ($animalsMassive as $key=>$animalId) {
+                    if ($point->aviaryId == $animalId->aviaryId){
+                       $animalPoint = [
+                           "animalId" => $animalId->animalId,
+                           "name" => $animalId->name,
+                           "type" => $animalId->type
+                         ];
+                         array_push($aviary["animals"], $animalPoint);
+                        }
+                }
+                foreach ($statusHisoryMassive as $key=>$statusId) {
+                    if ($point->aviaryId == $statusId->aviaryId){
+                       $statusPoint = [
+                           "status" => $statusId->status,
+                         ];
+                         array_push($aviary["status_history"], $statusPoint);
+                        }
+                }
+             
+             
+             array_push($aviaryList, $aviary);
+         }
+        return array_unique($aviaryList, SORT_REGULAR);
      }
 
     }
     public function addAviary(Request $request){
 
-    }
-    public function deleteAviary(Request $request){
+        DB::table('aviary')
+        ->insert([
+            'name_aviary' => $request->name_aviary,
+            'status'=> "Все в норме"
+        ]);
 
+        $lastIdAviary = DB::table('aviary')
+        ->latest('aviaryId')
+        ->value('aviaryId');
+
+        DB::table('user_aviary')
+        ->insert([
+            'userId' => $request->userId,
+            'aviaryId'=> $lastIdAviary
+        ]);
+    }
+    public function deleteAviary(Request $aviaryId){
+        DB::table('user_aviary')
+        ->where('aviaryId', $aviaryId->aviaryId)
+        ->delete();
+        DB::table('aviary')
+        ->where('aviaryId', $aviaryId->aviaryId)
+        ->delete();
     }
     public function updateAviary(Request $request){
-
+        DB::table('user_aviary')
+        ->where('aviaryId', $request->aviaryId)
+        ->delete();
+        $userAviaryUpdate = $request->users;
+        
+        foreach ($userAviaryUpdate as $pointAviaryUpdate) {
+            DB::table('user_aviary')
+            ->insert([
+            'aviaryId' => $request->aviaryId,
+            'userId' => $pointAviaryUpdate['userId'],
+            ]);
+        }
+        DB::table('aviary')
+        ->where('aviaryId', $request->aviaryId)
+        ->update([
+            'name_aviary' => $request->name_aviary,
+            'status'=> $request->status
+        ]);
     }
 }

@@ -27,15 +27,12 @@ Route::post('/logout', 'UserController@logout');
 Route::post('/updateSensor', 'sensorController@updateSensor');
 Route::post('/updateAviary', 'aviaryController@updateAviary');
 Route::post('/addAviary', 'aviaryController@addAviary');
-Route::post('/deleteAviary', 'aviaryController@deleteAviary');
+Route::post('/deleteAviary/{aviaryId?}', 'aviaryController@deleteAviary');
+Route::post('/addAnimal', 'animalController@addAnimal');
+Route::post('/deleteAnimal/{animalId?}', 'animalController@deleteAnimal');
+Route::post('/updateAnimal', 'animalController@updateAnimal');
 
 Route::get('/getUser', 'UserController@getUser');
 Route::get('/getSensor', 'sensorController@getSensor');
 Route::get('/getAviary/{userId?}', 'aviaryController@getAviary');
-
-
-
-
-
-
-
+Route::get('/getAnimal', 'animalController@getAnimal');
