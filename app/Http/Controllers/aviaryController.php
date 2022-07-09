@@ -34,7 +34,9 @@ class aviaryController extends Controller
          ->whereIn('user_aviary.aviaryId', $massiveAviaryId)
          ->get();
          $animalsMassive = DB::table('animal')->get();
-         $statusHisoryMassive = DB::table('status_history')->get();
+         $statusHisoryMassive = DB::table('status_history')
+         ->join('users', 'status_history.userId', '=', 'users.userId')
+         ->get();
          $aviaryList = [];
          foreach ($aviaryPoint as $point) {
              $aviary = [
@@ -51,7 +53,10 @@ class aviaryController extends Controller
                     $user = [
                         "userId" => $pointId->userId,
                         "name" => $pointId->name,
-                        "surname" => $pointId->surname
+                        "surname" => $pointId->surname,
+                        "phone" =>$pointId->phone,
+                        "email" => $pointId->email
+
                       ];
                       array_push($aviary["users"], $user);
                     }
@@ -70,6 +75,11 @@ class aviaryController extends Controller
                     if ($point->aviaryId == $statusId->aviaryId){
                        $statusPoint = [
                            "status" => $statusId->status,
+                           "timeStatus" => $statusId->timeStatus,
+                           "userId" => $statusId->userId,
+                           "name" => $statusId->name,
+                           "surname" => $statusId->surname
+                           
                          ];
                          array_push($aviary["status_history"], $statusPoint);
                         }
@@ -78,7 +88,20 @@ class aviaryController extends Controller
              
              array_push($aviaryList, $aviary);
          }
-        return array_unique($aviaryList, SORT_REGULAR);
+         
+       
+         function super_unique($array,$key)
+         {
+            $temp_array = [];
+            foreach ($array as &$v) {
+                if (!isset($temp_array[$v[$key]]))
+                $temp_array[$v[$key]] =& $v;
+            }
+            $array = array_values($temp_array);
+            return $array;
+     
+         }
+         return(super_unique($aviaryList,'id'));
      }
      elseif($user_role[0]->user_role == "Admin"){
         $userAviary = DB::table('user_aviary')
@@ -114,7 +137,8 @@ class aviaryController extends Controller
                     $user = [
                         "userId" => $pointId->userId,
                         "name" => $pointId->name,
-                        "surname" => $pointId->surname
+                        "surname" => $pointId->surname,
+                        "phone" =>$pointId->phone
                       ];
                       array_push($aviary["users"], $user);
                     }
@@ -155,7 +179,8 @@ class aviaryController extends Controller
 
         $lastIdAviary = DB::table('aviary')
         ->latest('aviaryId')
-        ->value('aviaryId');
+        ->value('aviaryId'); 
+
 
         DB::table('user_aviary')
         ->insert([
@@ -189,6 +214,21 @@ class aviaryController extends Controller
         ->update([
             'name_aviary' => $request->name_aviary,
             'status'=> $request->status
+        ]);
+    }
+    public function updateStatus(Request $request) {
+        DB::table('status_history')
+        ->insert([
+            'aviaryId' => $request->aviaryId,
+            'status' => $request->status,
+            'userId' => $request->userId
+        ]);
+    }
+    public function updateUserAviary(Request $request){
+        DB::table('user_aviary')
+        ->insert([
+            'aviaryId' => $request->aviaryId,
+            'userId' => $request->userId
         ]);
     }
 }

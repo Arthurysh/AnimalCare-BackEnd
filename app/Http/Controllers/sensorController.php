@@ -12,7 +12,7 @@ class sensorController extends Controller
     public function getSensor(){
       $sensors = DB::table('sensors')
        ->join('aviary', 'aviary.aviaryId', '=', 'sensors.aviaryId')
-       ->select('sensors.sensorId', 'sensors.sensorName', 'sensors.maximum_limitation', 'sensors.minimum_limitation', 'aviary.name_aviary')
+       ->select('sensors.sensorId', 'sensors.sensorName', 'sensors.maximum_limitation', 'sensors.minimum_limitation', 'aviary.name_aviary', 'sensors.value')
        ->get();
        return $sensors;
     }

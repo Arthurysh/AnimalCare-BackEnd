@@ -31,6 +31,8 @@ Route::post('/deleteAviary/{aviaryId?}', 'aviaryController@deleteAviary');
 Route::post('/addAnimal', 'animalController@addAnimal');
 Route::post('/deleteAnimal/{animalId?}', 'animalController@deleteAnimal');
 Route::post('/updateAnimal', 'animalController@updateAnimal');
+Route::post('/updateStatus', 'aviaryController@updateStatus');
+Route::post('/updateUserAviary', 'aviaryController@updateUserAviary');
 
 Route::get('/getUser', 'UserController@getUser');
 Route::get('/getSensor', 'sensorController@getSensor');

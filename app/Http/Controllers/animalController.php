@@ -14,7 +14,7 @@ class animalController extends Controller
     public function getAnimal(){
        $animals = DB::table('animal')
        ->join('aviary', 'animal.aviaryId', '=', 'aviary.aviaryId')
-       ->select('aviary.aviaryId', 'aviary.name_aviary', 'animal.animalId', 'animal.name', 'animal.type', 'animal.birthday')
+       ->select('aviary.aviaryId', 'aviary.name_aviary', 'animal.animalId', 'animal.name', 'animal.type', 'animal.birthday', 'animal.image')
        ->get();
         return $animals;
     }
@@ -37,9 +37,10 @@ class animalController extends Controller
        DB::table('animal')
        ->insert([
             'name' => $request->name,
-            'aviaryId' => $request->aviaryId,
+            'aviaryId' => $request->aviary,
             'type' => $request->type,
             'birthday' => $request->birthday,
+            'image' => $request->image
        ]);
     }
 }

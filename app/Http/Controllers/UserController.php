@@ -61,6 +61,7 @@ class UserController extends Controller
     public function getUser(Request $request){
         $users = DB::table('users')
         ->where('user_role', 'User')
+        ->select('email', 'name', 'surname', 'userId', 'phone')
         ->get();
         return $users;
     }
