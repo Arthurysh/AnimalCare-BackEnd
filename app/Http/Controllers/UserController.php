@@ -65,7 +65,7 @@ class UserController extends Controller
         ->get();
         return $users;
     }
-    public function upateUser(Request $request){
+    public function updateUser(Request $request){
         DB::table('users')
         ->where('userId', $request->userId)
         ->update([

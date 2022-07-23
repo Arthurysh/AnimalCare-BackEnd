@@ -28,12 +28,30 @@ class animalController extends Controller
             'birthday' => $request->birthday,
        ]);
     }
-    public function deleteAnimal(Request $animalId){
+    public function deleteAnimal(Request $request){
+       $animalIdDelete = DB::table('animal')
+        ->where('animalId', $request->idAnimal)
+        ->get();
+   
+        DB::table('status_history')
+        ->insert([
+               'userId' => $request->userId,
+               'status' => "Удалил животного",
+               'aviaryId'=> $animalIdDelete[0]->aviaryId
+        ]);
+
         DB::table('animal')
-        ->where('animalId', $animalId->animalId)
+        ->where('animalId', $request->idAnimal)
         ->delete();
     }
     public function addAnimal(Request $request){
+        DB::table('status_history')
+        ->insert([
+               'userId' => $request->userId,
+               'status' => "Добавил животного",
+               'aviaryId'=> $request->aviary
+
+        ]);
        DB::table('animal')
        ->insert([
             'name' => $request->name,
